@@ -19,24 +19,35 @@ namespace Expense_Tracker
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
+    /// 
+
+    public interface IDataBase
+    {
+        List<Expense> GetAll();
+        void ConnectDataBase();               
+        void Insert(Expense expense);
+        void Update(Expense expense);
+        void Delete(int expenseId);  
+    }
+
+
+
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
         }
+
     }
 
-    public class DataBase 
+    public class DataBase : IDataBase
     {
-        private string connectionString = "Data Source=storage/storage.db;Version=3;";
-        SQLiteConnection connection;
-
-        private string insertQuery = "INSERT INTO expenses (Title, Description, Category, Cost, Created) VALUES (@Title, @Description, @Category, @Cost, @Created)";
-        private string deleteQuery = "DELETE FROM expenses WHERE id = @id";
+        SQLiteConnection connection;        
 
         public void ConnectDataBase()
         {
+            string connectionString = "Data Source=storage/storage.db;Version=3;";
             using (connection = new SQLiteConnection(connectionString))
             {
                 connection.Open();
@@ -63,8 +74,18 @@ namespace Expense_Tracker
             
         }
 
+        public List<Expense> GetAll()
+        {
+            List<Expense> expenses = new List<Expense>();
+            
+            
+            return expenses;
+        }
+
         public void Insert(Expense expense) 
         {
+            string insertQuery = "INSERT INTO expenses (Title, Description, Category, Cost, Created) VALUES (@Title, @Description, @Category, @Cost, @Created)";
+
             SQLiteCommand insertCom = new SQLiteCommand(insertQuery, connection);
             insertCom.Parameters.AddWithValue("@title", expense.Title);
             insertCom.Parameters.AddWithValue("@descripion", expense.Description);
@@ -73,18 +94,31 @@ namespace Expense_Tracker
             insertCom.Parameters.AddWithValue("@created", expense.Created);
             insertCom.ExecuteNonQuery();
             
-
-            Console.WriteLine("Expense inserted successfully.");
         }
 
+        public void Update(Expense expense)
+        {
+            string updateQuery = "UPDATE expenses SET Title = @title, Description = @description, Category = @category, Cost = @cost, Created = @created WHERE Id = @id";
+            SQLiteCommand updateCom = new SQLiteCommand(updateQuery, connection);
+
+            updateCom.Parameters.AddWithValue("@title", expense.Title);
+            updateCom.Parameters.AddWithValue("@description", expense.Description);
+            updateCom.Parameters.AddWithValue("@category", expense.Category);
+            updateCom.Parameters.AddWithValue("@cost", expense.Cost);
+            updateCom.Parameters.AddWithValue("@created", expense.Created);
+            updateCom.Parameters.AddWithValue("@id", expense.Id);
+
+            updateCom.ExecuteNonQuery();
+        }
 
         public void Delete(int expenseId) 
         {
+            string deleteQuery = "DELETE FROM expenses WHERE Id = @id";
+
             SQLiteCommand deleteCom = new SQLiteCommand(deleteQuery, connection);
             deleteCom.Parameters.AddWithValue(deleteQuery, expenseId);
             deleteCom.ExecuteNonQuery();
 
-            Console.WriteLine("Deleted expense with id = " + expenseId);
         }
         
 
@@ -92,6 +126,7 @@ namespace Expense_Tracker
 
     public class Expense
     {
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
 
