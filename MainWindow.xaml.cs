@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Data.SQLite;
 
 namespace Expense_Tracker
 {
@@ -24,6 +25,69 @@ namespace Expense_Tracker
         {
             InitializeComponent();
         }
+    }
+
+    public class DataBase 
+    {
+        private string connectionString = "Data Source=storage/storage.db;Version=3;";
+        SQLiteConnection connection;
+
+        private string insertQuery = "INSERT INTO expenses (Title, Description, Category, Cost, Created) VALUES (@Title, @Description, @Category, @Cost, @Created)";
+        private string deleteQuery = "DELETE FROM expenses WHERE id = @id";
+
+        public void ConnectDataBase()
+        {
+            using (connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                Console.WriteLine("SQLite connection successfull");
+
+                string createTableQuery = @"
+                CREATE TABLE IF NOT EXISTS expenses (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Title TEXT NOT NULL,
+                    Description TEXT,
+                    Category TEXT NOT NULL,
+                    Cost INTEGER NOT NULL, 
+                    Created DATETIME DEFAULT CURRENT_TIMESTAMP
+                );
+            ";
+                SQLiteCommand createTableCom = new SQLiteCommand(createTableQuery, connection);
+
+                createTableCom.ExecuteNonQuery();
+
+                Console.WriteLine("Table \'expenses\' is ready");
+            }
+
+            
+        }
+
+        public void Insert(Expense expense) 
+        {
+            SQLiteCommand insertCom = new SQLiteCommand(insertQuery, connection);
+            insertCom.Parameters.AddWithValue("@title", expense.Title);
+            insertCom.Parameters.AddWithValue("@descripion", expense.Description);
+            insertCom.Parameters.AddWithValue("@created", expense.Created);
+            insertCom.Parameters.AddWithValue("@cost", expense.Cost);
+            insertCom.Parameters.AddWithValue("@created", expense.Created);
+            insertCom.ExecuteNonQuery();
+            
+
+            Console.WriteLine("Expense inserted successfully.");
+        }
+
+
+        public void Delete(int expenseId) 
+        {
+            SQLiteCommand deleteCom = new SQLiteCommand(deleteQuery, connection);
+            deleteCom.Parameters.AddWithValue(deleteQuery, expenseId);
+            deleteCom.ExecuteNonQuery();
+
+            Console.WriteLine("Deleted expense with id = " + expenseId);
+        }
+        
+
     }
 
     public class Expense
