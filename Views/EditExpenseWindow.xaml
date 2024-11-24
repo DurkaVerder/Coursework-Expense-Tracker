@@ -6,10 +6,14 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:Expense_Tracker.Views"
         mc:Ignorable="d"
-        Title="Редактирование расхода" 
+        Title="{Binding WindowTitle}" 
         Width="400" 
-        SizeToContent="Height"
+        Height="Auto"
+        WindowStyle="None"
+        AllowsTransparency="True"
         WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="{DynamicResource MaterialDesignPaper}"
         TextElement.FontWeight="Regular"
@@ -25,64 +29,113 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid Margin="16">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Название -->
-        <TextBox Grid.Row="0"
-                 Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
-                 materialDesign:HintAssist.Hint="Название"
-                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                 Margin="0,0,0,16"/>
+        <!-- Title Bar -->
+        <Grid Grid.Row="0" 
+              Background="{DynamicResource PrimaryHueMidBrush}"
+              MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Описание -->
-        <TextBox Grid.Row="1"
-                 Text="{Binding Description}"
-                 materialDesign:HintAssist.Hint="Описание"
-                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                 Margin="0,0,0,16"/>
+            <!-- Иконка и заголовок -->
+            <StackPanel Grid.Column="0" 
+                        Orientation="Horizontal" 
+                        Margin="16,8">
+                <materialDesign:PackIcon Kind="CashPlus"
+                                       Width="24"
+                                       Height="24"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+                <TextBlock Text="{Binding WindowTitle}"
+                         Margin="8,0,0,0"
+                         VerticalAlignment="Center"
+                         FontSize="16"
+                         Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+            </StackPanel>
 
-        <!-- Сумма -->
-        <TextBox Grid.Row="2"
-                 Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
-                 materialDesign:HintAssist.Hint="Сумма"
-                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                 Margin="0,0,0,16"/>
+            <!-- Кнопка закрытия -->
+            <Button Grid.Column="2"
+                    Style="{StaticResource MaterialDesignFlatButton}"
+                    Width="46" Height="32"
+                    Click="CloseButton_Click"
+                    Padding="0"
+                    Margin="0,0,4,0">
+                <materialDesign:PackIcon Kind="Close" 
+                                       Width="18" 
+                                       Height="18"
+                                       Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+            </Button>
+        </Grid>
 
-        <!-- Категория -->
-        <ComboBox Grid.Row="3"
-                  ItemsSource="{Binding Categories}"
-                  SelectedItem="{Binding Category}"
-                  materialDesign:HintAssist.Hint="Категория"
-                  Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                  IsEditable="True"
-                  Margin="0,0,0,16"/>
+        <!-- Основной контент -->
+        <Grid Grid.Row="1" Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- Дата -->
-        <DatePicker Grid.Row="4"
-                   SelectedDate="{Binding Date}"
-                   materialDesign:HintAssist.Hint="Дата"
-                   Style="{StaticResource MaterialDesignOutlinedDatePicker}"
-                   Margin="0,0,0,16"/>
+            <!-- Название -->
+            <TextBox Grid.Row="0"
+                     Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
+                     materialDesign:HintAssist.Hint="Название"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Margin="0,0,0,16"/>
 
-        <!-- Кнопки -->
-        <StackPanel Grid.Row="5" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Right">
-            <Button Content="Отмена"
-                    Command="{Binding CancelCommand}"
-                    Style="{StaticResource MaterialDesignOutlinedButton}"
-                    Margin="0,0,8,0"/>
-            <Button Content="Сохранить"
-                    Command="{Binding SaveCommand}"
-                    Style="{StaticResource MaterialDesignRaisedButton}"/>
-        </StackPanel>
+            <!-- Описание -->
+            <TextBox Grid.Row="1"
+                     Text="{Binding Description}"
+                     materialDesign:HintAssist.Hint="Описание"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Margin="0,0,0,16"/>
+
+            <!-- Сумма -->
+            <TextBox Grid.Row="2"
+                     Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
+                     materialDesign:HintAssist.Hint="Сумма"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Margin="0,0,0,16"/>
+
+            <!-- Категория -->
+            <ComboBox Grid.Row="3"
+                      ItemsSource="{Binding Categories}"
+                      SelectedItem="{Binding Category}"
+                      materialDesign:HintAssist.Hint="Категория"
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      IsEditable="True"
+                      Margin="0,0,0,16"/>
+
+            <!-- Дата -->
+            <DatePicker Grid.Row="4"
+                       SelectedDate="{Binding Date}"
+                       materialDesign:HintAssist.Hint="Дата"
+                       Style="{StaticResource MaterialDesignOutlinedDatePicker}"
+                       Margin="0,0,0,16"/>
+
+            <!-- Кнопки -->
+            <StackPanel Grid.Row="5" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Right"
+                        Margin="0,0,0,8">
+                <Button Content="Отмена"
+                        Command="{Binding CancelCommand}"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Margin="0,0,8,0"/>
+                <Button Content="Сохранить"
+                        Command="{Binding SaveCommand}"
+                        Style="{StaticResource MaterialDesignRaisedButton}"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

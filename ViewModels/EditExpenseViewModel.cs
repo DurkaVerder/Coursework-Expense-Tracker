@@ -11,6 +11,7 @@ namespace Expense_Tracker.ViewModels
     public class EditExpenseViewModel : INotifyPropertyChanged
     {
         private readonly Expense _expense;
+        private readonly bool _isNewExpense;
 
         public static readonly string[] PredefinedCategories = new[]
         {
@@ -26,9 +27,10 @@ namespace Expense_Tracker.ViewModels
             "Прочее"
         };
 
-        public EditExpenseViewModel(Expense expense)
+        public EditExpenseViewModel(Expense expense, bool isNewExpense = false)
         {
             _expense = expense ?? throw new ArgumentNullException(nameof(expense));
+            _isNewExpense = isNewExpense;
             SaveCommand = new RelayCommand(Save, CanSave);
             CancelCommand = new RelayCommand(Cancel);
         }
@@ -117,6 +119,8 @@ namespace Expense_Tracker.ViewModels
         public ICommand CancelCommand { get; }
 
         public event EventHandler<bool>? CloseRequested;
+
+        public string WindowTitle => _isNewExpense ? "Добавление расхода" : "Редактирование расхода";
 
         private void Save()
         {

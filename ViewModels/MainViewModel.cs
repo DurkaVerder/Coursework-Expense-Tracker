@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Globalization;
@@ -133,8 +134,9 @@ namespace Expense_Tracker.ViewModels
         private void AddExpense()
         {
             var expense = new Expense { Date = DateTime.Today };
-            var viewModel = new EditExpenseViewModel(expense);
+            var viewModel = new EditExpenseViewModel(expense, true);
             var window = new EditExpenseWindow { DataContext = viewModel };
+            window.Owner = Application.Current.MainWindow;
 
             if (window.ShowDialog() == true)
             {
@@ -148,8 +150,9 @@ namespace Expense_Tracker.ViewModels
         {
             if (expense == null) return;
 
-            var viewModel = new EditExpenseViewModel(expense);
+            var viewModel = new EditExpenseViewModel(expense, false);
             var window = new EditExpenseWindow { DataContext = viewModel };
+            window.Owner = Application.Current.MainWindow;
 
             if (window.ShowDialog() == true)
             {
