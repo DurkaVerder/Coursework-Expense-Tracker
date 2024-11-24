@@ -20,7 +20,7 @@ namespace Expense_Tracker.Controls
             }
         }
 
-        private void Window_StateChanged(object sender, System.EventArgs e)
+        private void Window_StateChanged(object? sender, System.EventArgs e)
         {
             if (sender is Window window)
             {

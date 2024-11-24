@@ -62,7 +62,7 @@ namespace Expense_Tracker.ViewModels
 
         public string Description
         {
-            get => _expense.Description;
+            get => _expense.Description ?? string.Empty;
             set
             {
                 if (_expense.Description != value)

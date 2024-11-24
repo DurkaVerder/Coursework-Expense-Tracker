@@ -22,7 +22,7 @@ namespace Expense_Tracker.ViewModels
         private readonly ICollectionView _expensesView;
         private DateTime? _startDate;
         private DateTime? _endDate;
-        private string _selectedCategory;
+        private string _selectedCategory = string.Empty;
         private bool _isDarkTheme;
         private readonly CultureInfo _ruCulture;
 
@@ -42,8 +42,8 @@ namespace Expense_Tracker.ViewModels
 
             // Инициализируем команды
             AddExpenseCommand = new RelayCommand(AddExpense);
-            EditExpenseCommand = new RelayCommand<Expense>(EditExpense);
-            DeleteExpenseCommand = new RelayCommand<Expense>(DeleteExpense);
+            EditExpenseCommand = new RelayCommand<Expense?>(EditExpense);
+            DeleteExpenseCommand = new RelayCommand<Expense?>(DeleteExpense);
             ClearFiltersCommand = new RelayCommand(ClearFilters);
             ToggleThemeCommand = new RelayCommand(ToggleTheme);
 
@@ -146,7 +146,7 @@ namespace Expense_Tracker.ViewModels
             }
         }
 
-        private void EditExpense(Expense expense)
+        private void EditExpense(Expense? expense)
         {
             if (expense == null) return;
 
@@ -161,7 +161,7 @@ namespace Expense_Tracker.ViewModels
             }
         }
 
-        private void DeleteExpense(Expense expense)
+        private void DeleteExpense(Expense? expense)
         {
             if (expense == null) return;
 
@@ -174,7 +174,7 @@ namespace Expense_Tracker.ViewModels
         {
             StartDate = null;
             EndDate = null;
-            SelectedCategory = null;
+            SelectedCategory = string.Empty;
             OnPropertyChanged(nameof(TotalAmountString));
         }
 
@@ -207,9 +207,9 @@ namespace Expense_Tracker.ViewModels
             return true;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             if (propertyName == nameof(StartDate) ||
