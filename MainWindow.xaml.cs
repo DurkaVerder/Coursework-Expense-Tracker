@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Data.SQLite;
+using System.Data.SqlClient;
 
 namespace Expense_Tracker
 {
@@ -20,14 +21,13 @@ namespace Expense_Tracker
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
     /// 
-
     public interface IDataBase
     {
         List<Expense> GetAll();
-        void ConnectDataBase();               
+        void ConnectDataBase();
         void Insert(Expense expense);
         void Update(Expense expense);
-        void Delete(int expenseId);  
+        void Delete(int expenseId);
     }
 
 
@@ -77,8 +77,25 @@ namespace Expense_Tracker
         public List<Expense> GetAll()
         {
             List<Expense> expenses = new List<Expense>();
-            
-            
+            string allQuery = "SELECT * FROM expenses";
+
+            SQLiteCommand allCom = new SQLiteCommand(allQuery, connection);
+            using (var reader = allCom.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    expenses.Add(new Expense
+                    {
+                        Id = reader.GetInt32(0),
+                        Title = reader.GetString(1),
+                        Description = reader.GetString(2),
+                        Category = reader.GetString(3),
+                        Cost = reader.GetFloat(4),
+                        Created = reader.GetDateTime(5),
+                    });
+                }
+
+            }
             return expenses;
         }
 
@@ -131,16 +148,21 @@ namespace Expense_Tracker
         public string Description { get; set; }
 
         public string Category { get; set; }
-        public int Cost { get; set; }
+        public float Cost { get; set; }
 
         public DateTime Created { get; set; }
 
-        public Expense(string title, string description, string category, int cost)
+        public Expense() 
+        { 
+        
+        }
+        public Expense(string title, string description, string category, float cost)
         {
             this.Title = title;
             this.Description = description;
             this.Category = category;
             this.Cost = cost;
+            this.Created = DateTime.Now;
         }
     }
 
