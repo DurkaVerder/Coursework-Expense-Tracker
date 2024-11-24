@@ -124,34 +124,26 @@
             <!-- Панель фильтров -->
             <Grid Grid.Row="1" Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Поиск -->
-                <TextBox Grid.Column="0"
-                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                         materialDesign:HintAssist.Hint="Поиск по названию, описанию или категории"
-                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                         Margin="0,0,16,0"/>
-
                 <!-- Фильтр по датам -->
-                <DatePicker Grid.Column="1"
+                <DatePicker Grid.Column="0"
                            SelectedDate="{Binding StartDate}"
                            materialDesign:HintAssist.Hint="Дата начала"
                            Style="{StaticResource MaterialDesignOutlinedDatePicker}"
                            Margin="0,0,16,0"/>
 
-                <DatePicker Grid.Column="2"
+                <DatePicker Grid.Column="1"
                            SelectedDate="{Binding EndDate}"
                            materialDesign:HintAssist.Hint="Дата окончания"
                            Style="{StaticResource MaterialDesignOutlinedDatePicker}"
                            Margin="0,0,16,0"/>
 
                 <!-- Фильтр по категории -->
-                <ComboBox Grid.Column="3"
+                <ComboBox Grid.Column="2"
                           ItemsSource="{Binding Categories}"
                           SelectedItem="{Binding SelectedCategory}"
                           materialDesign:HintAssist.Hint="Категория"

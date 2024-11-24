@@ -19,7 +19,6 @@ namespace Expense_Tracker.ViewModels
     {
         private readonly AppDbContext _dbContext;
         private readonly ICollectionView _expensesView;
-        private string _searchText = string.Empty;
         private DateTime? _startDate;
         private DateTime? _endDate;
         private string _selectedCategory;
@@ -69,20 +68,6 @@ namespace Expense_Tracker.ViewModels
             "Подарки",
             "Прочее"
         };
-
-        public string SearchText
-        {
-            get => _searchText;
-            set
-            {
-                if (_searchText != value)
-                {
-                    _searchText = value;
-                    OnPropertyChanged();
-                    _expensesView.Refresh();
-                }
-            }
-        }
 
         public DateTime? StartDate
         {
@@ -184,7 +169,6 @@ namespace Expense_Tracker.ViewModels
 
         private void ClearFilters()
         {
-            SearchText = string.Empty;
             StartDate = null;
             EndDate = null;
             SelectedCategory = null;
@@ -204,18 +188,6 @@ namespace Expense_Tracker.ViewModels
         {
             if (obj is not Expense expense)
                 return false;
-
-            // Фильтр по поисковому запросу
-            if (!string.IsNullOrWhiteSpace(SearchText))
-            {
-                var searchText = SearchText.ToLower();
-                if (!expense.Title.ToLower().Contains(searchText) &&
-                    !expense.Description.ToLower().Contains(searchText) &&
-                    !expense.Category.ToLower().Contains(searchText))
-                {
-                    return false;
-                }
-            }
 
             // Фильтр по дате начала
             if (StartDate.HasValue && expense.Date.Date < StartDate.Value.Date)
@@ -237,9 +209,8 @@ namespace Expense_Tracker.ViewModels
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            if (propertyName == nameof(SearchText) || 
-                propertyName == nameof(StartDate) || 
-                propertyName == nameof(EndDate) || 
+            if (propertyName == nameof(StartDate) ||
+                propertyName == nameof(EndDate) ||
                 propertyName == nameof(SelectedCategory))
             {
                 OnPropertyChanged(nameof(TotalAmountString));
