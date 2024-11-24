@@ -6,141 +6,119 @@
         xmlns:local="clr-namespace:Expense_Tracker.Views"
         xmlns:vm="clr-namespace:Expense_Tracker.ViewModels"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:controls="clr-namespace:Expense_Tracker.Controls"
         mc:Ignorable="d"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        Background="{DynamicResource MaterialDesignPaper}"
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal"
-        TextOptions.TextRenderingMode="Auto"
-        FontFamily="{materialDesign:MaterialDesignFont}"
-        Title="Учет расходов" 
+        Style="{StaticResource MaterialWindowStyle}"
+        Title="{DynamicResource AppTitle}"
         Height="600" 
         Width="900"
+        MinHeight="400"
+        MinWidth="600"
         WindowStartupLocation="CenterScreen">
+    
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
 
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Заголовок и кнопки -->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <TextBlock Text="Мои расходы"
-                      Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                      VerticalAlignment="Center"/>
-
-            <StackPanel Grid.Column="1" 
-                       Orientation="Horizontal"
-                       Margin="8,0,0,0">
-                <Button Command="{Binding AddExpenseCommand}"
-                        Style="{StaticResource MaterialDesignFlatButton}">
-                    <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="Plus" 
-                                               VerticalAlignment="Center"/>
-                        <TextBlock Text="Добавить" 
-                                 Margin="8,0,0,0"/>
-                    </StackPanel>
-                </Button>
-                <Button Command="{Binding ToggleThemeCommand}"
-                        Style="{StaticResource MaterialDesignFlatButton}"
-                        Margin="8,0,0,0">
-                    <materialDesign:PackIcon Kind="ThemeLightDark"/>
-                </Button>
-            </StackPanel>
-        </Grid>
-
         <!-- Фильтры -->
-        <Grid Grid.Row="1" Margin="0,16">
+        <Grid Grid.Row="0" Margin="0,8,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <ComboBox Grid.Column="0"
-                      Margin="0,0,8,0"
-                      materialDesign:HintAssist.Hint="Категория"
-                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                      ItemsSource="{Binding Categories}"
-                      SelectedItem="{Binding SelectedCategory}"/>
+            <DatePicker Grid.Column="0"
+                       Style="{StaticResource MaterialDesignOutlinedDatePicker}"
+                       Width="120"
+                       materialDesign:HintAssist.Hint="{DynamicResource MainWindow_StartDate}"
+                       SelectedDate="{Binding FilterStartDate}"/>
 
             <DatePicker Grid.Column="1"
-                       Margin="8,0"
-                       materialDesign:HintAssist.Hint="От"
                        Style="{StaticResource MaterialDesignOutlinedDatePicker}"
-                       SelectedDate="{Binding StartDate}"/>
+                       Width="120"
+                       Margin="8,0,0,0"
+                       materialDesign:HintAssist.Hint="{DynamicResource MainWindow_EndDate}"
+                       SelectedDate="{Binding FilterEndDate}"/>
 
-            <DatePicker Grid.Column="2"
-                       Margin="8,0"
-                       materialDesign:HintAssist.Hint="До"
-                       Style="{StaticResource MaterialDesignOutlinedDatePicker}"
-                       SelectedDate="{Binding EndDate}"/>
+            <ComboBox Grid.Column="2"
+                     Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                     Width="150"
+                     Margin="8,0,0,0"
+                     materialDesign:HintAssist.Hint="{DynamicResource MainWindow_Category}"
+                     ItemsSource="{Binding Categories}"
+                     SelectedItem="{Binding SelectedCategory}"/>
 
-            <Button Grid.Column="3"
-                    Margin="8,0,0,0"
-                    Command="{Binding ResetFiltersCommand}"
-                    Style="{StaticResource MaterialDesignOutlinedButton}">
-                <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="FilterRemove" 
-                                           VerticalAlignment="Center"/>
-                    <TextBlock Text="Сбросить" 
-                             Margin="8,0,0,0"/>
-                </StackPanel>
+            <Button Grid.Column="4"
+                    Style="{StaticResource MaterialDesignFloatingActionButton}"
+                    Width="56"
+                    Height="56"
+                    Command="{Binding AddNewExpenseCommand}">
+                <materialDesign:PackIcon Kind="Plus"
+                                       Width="24"
+                                       Height="24"/>
             </Button>
         </Grid>
 
         <!-- Список расходов -->
-        <ListView Grid.Row="2"
+        <DataGrid Grid.Row="1"
+                  Margin="0,16,0,0"
                   ItemsSource="{Binding FilteredExpenses}"
-                  materialDesign:ScrollViewerAssist.BubbleVerticalScroll="True">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <materialDesign:Card Margin="2" UniformCornerRadius="4">
-                        <Grid Margin="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel>
-                                <TextBlock Text="{Binding Description}"
-                                         Style="{StaticResource MaterialDesignBody1TextBlock}"/>
-                                <TextBlock Text="{Binding Category}"
-                                         Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                         Opacity="0.6"/>
-                                <TextBlock Text="{Binding Date, StringFormat={}{0:d MMMM yyyy}}"
-                                         Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                         Opacity="0.6"/>
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  Style="{StaticResource MaterialDesignDataGrid}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{DynamicResource Expense_Date}"
+                                  Binding="{Binding Date, StringFormat=d}"/>
+                <DataGridTextColumn Header="{DynamicResource Expense_Category}"
+                                  Binding="{Binding Category}"/>
+                <DataGridTextColumn Header="{DynamicResource Expense_Description}"
+                                  Binding="{Binding Description}"/>
+                <DataGridTextColumn Header="{DynamicResource Expense_Amount}"
+                                  Binding="{Binding Amount, StringFormat={}{0:N2}}"/>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Style="{StaticResource MaterialDesignIconButton}"
+                                        Command="{Binding DataContext.EditExistingExpenseCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}">
+                                    <materialDesign:PackIcon Kind="Edit"/>
+                                </Button>
+                                <Button Style="{StaticResource MaterialDesignIconButton}"
+                                        Command="{Binding DataContext.RemoveExpenseCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}">
+                                    <materialDesign:PackIcon Kind="Delete"/>
+                                </Button>
                             </StackPanel>
-
-                            <TextBlock Grid.Column="1"
-                                     Text="{Binding Amount, StringFormat={}{0:C}}"
-                                     Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                                     VerticalAlignment="Center"
-                                     Margin="16,0,0,0"/>
-                        </Grid>
-                    </materialDesign:Card>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
 
         <!-- Итоговая сумма -->
-        <TextBlock Grid.Row="3"
-                  Margin="0,16,0,0"
-                  Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                  HorizontalAlignment="Right">
-            <Run Text="Итого:"/>
-            <Run Text="{Binding TotalAmount, StringFormat={}{0:C}}"/>
-        </TextBlock>
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,16,0,0">
+            <TextBlock Text="{DynamicResource Total_Amount}"
+                       Style="{StaticResource MaterialDesignBody1TextBlock}"
+                       Margin="0,0,8,0"/>
+            <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:N2}}"
+                       Style="{StaticResource MaterialDesignBody1TextBlock}"
+                       Margin="0,0,4,0"/>
+            <TextBlock Text="{Binding CurrentCurrency}"
+                       Style="{StaticResource MaterialDesignBody1TextBlock}"/>
+        </StackPanel>
     </Grid>
 </Window>

@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using Expense_Tracker.Commands;
 using Expense_Tracker.Models;
@@ -9,7 +10,7 @@ namespace Expense_Tracker.ViewModels
 {
     public class EditExpenseViewModel : INotifyPropertyChanged
     {
-        private readonly Models.Expense _expense;
+        private readonly Expense _expense;
 
         public static readonly string[] PredefinedCategories = new[]
         {
@@ -25,18 +26,25 @@ namespace Expense_Tracker.ViewModels
             "Прочее"
         };
 
-        public EditExpenseViewModel(Models.Expense expense)
+        public EditExpenseViewModel(Expense expense)
         {
-            _expense = expense;
-            
-            Title = expense.Title;
-            Description = expense.Description;
-            Category = expense.Category;
-            Amount = expense.Amount;
-            Date = expense.Date;
+            if (expense == null)
+                throw new ArgumentNullException(nameof(expense));
 
-            SaveCommand = new RelayCommand(Save);
+            _expense = expense;
+            SaveCommand = new RelayCommand(Save, CanSave);
             CancelCommand = new RelayCommand(Cancel);
+        }
+
+        private bool CanSave()
+        {
+            if (string.IsNullOrWhiteSpace(Title))
+                return false;
+
+            if (Amount < 0)
+                return false;
+
+            return true;
         }
 
         public string Title
@@ -48,6 +56,7 @@ namespace Expense_Tracker.ViewModels
                 {
                     _expense.Title = value;
                     OnPropertyChanged();
+                    (SaveCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -74,6 +83,7 @@ namespace Expense_Tracker.ViewModels
                 {
                     _expense.Amount = value;
                     OnPropertyChanged();
+                    (SaveCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -113,17 +123,25 @@ namespace Expense_Tracker.ViewModels
 
         private void Save()
         {
-            if (string.IsNullOrWhiteSpace(Title))
+            try
             {
-                Title = "Без названия";
-            }
+                if (!CanSave())
+                {
+                    MessageBox.Show("Пожалуйста, заполните все обязательные поля корректно.", "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
-            if (string.IsNullOrWhiteSpace(Category))
+                if (string.IsNullOrWhiteSpace(Category))
+                {
+                    Category = "Прочее";
+                }
+
+                CloseRequested?.Invoke(this, true);
+            }
+            catch (Exception ex)
             {
-                Category = "Прочее";
+                MessageBox.Show($"Ошибка при сохранении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            CloseRequested?.Invoke(this, true);
         }
 
         private void Cancel()

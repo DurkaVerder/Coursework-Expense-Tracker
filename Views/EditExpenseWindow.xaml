@@ -6,11 +6,16 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:Expense_Tracker.Views"
         mc:Ignorable="d"
-        Title="Редактирование расхода" 
+        Title="{DynamicResource EditWindow_Title}" 
         Height="400" 
         Width="400"
         WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource PrimaryBackground}">
+        Loaded="Window_Loaded"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        FontFamily="{materialDesign:MaterialDesignFont}">
     
     <Grid Margin="16">
         <Grid.RowDefinitions>
@@ -26,22 +31,22 @@
         <TextBox Grid.Row="0"
                  Margin="0,8"
                  Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
-                 materialDesign:HintAssist.Hint="Название"
-                 Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                 materialDesign:HintAssist.Hint="{DynamicResource EditWindow_Amount}"
+                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
 
         <TextBox Grid.Row="1"
                  Margin="0,8"
                  Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                 materialDesign:HintAssist.Hint="Описание"
-                 Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                 materialDesign:HintAssist.Hint="{DynamicResource EditWindow_Description}"
+                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
 
         <ComboBox Grid.Row="2"
                   Margin="0,8"
                   ItemsSource="{Binding Categories}"
                   SelectedItem="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
                   IsEditable="False"
-                  materialDesign:HintAssist.Hint="Категория"
-                  Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+                  materialDesign:HintAssist.Hint="{DynamicResource EditWindow_Category}"
+                  Style="{StaticResource MaterialDesignComboBox}"/>
 
         <Grid Grid.Row="3" Margin="0,8">
             <Grid.ColumnDefinitions>
@@ -52,16 +57,16 @@
             <StackPanel>
                 <TextBox 
                          Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
-                         materialDesign:HintAssist.Hint="Сумма"
-                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         materialDesign:HintAssist.Hint="{DynamicResource EditWindow_Amount}"
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                          Margin="0,0,10,0"/>
             </StackPanel>
 
             <StackPanel Grid.Column="1">
                 <DatePicker 
                            SelectedDate="{Binding Date, UpdateSourceTrigger=PropertyChanged}"
-                           materialDesign:HintAssist.Hint="Дата"
-                           Style="{StaticResource MaterialDesignOutlinedDatePicker}"/>
+                           materialDesign:HintAssist.Hint="{DynamicResource EditWindow_Date}"
+                           Style="{StaticResource MaterialDesignDatePicker}"/>
             </StackPanel>
         </Grid>
 
@@ -69,13 +74,13 @@
                     Orientation="Horizontal" 
                     HorizontalAlignment="Right" 
                     Margin="0,16,0,0">
-            <Button Content="Отмена"
+            <Button Content="{DynamicResource EditWindow_Cancel}"
                     Command="{Binding CancelCommand}"
-                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Style="{StaticResource MaterialDesignFlatButton}"
                     Margin="8,0"/>
-            <Button Content="Сохранить"
+            <Button Content="{DynamicResource EditWindow_Save}"
                     Command="{Binding SaveCommand}"
-                    Style="{StaticResource MaterialDesignFilledButton}"/>
+                    Style="{StaticResource MaterialDesignRaisedButton}"/>
         </StackPanel>
     </Grid>
 </Window>

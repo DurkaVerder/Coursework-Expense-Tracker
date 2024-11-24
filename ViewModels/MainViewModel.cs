@@ -3,12 +3,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using Expense_Tracker.Commands;
 using Expense_Tracker.Data;
 using Expense_Tracker.Models;
 using Expense_Tracker.Services;
-using Expense_Tracker.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using MaterialDesignThemes.Wpf;
 
@@ -17,48 +17,46 @@ namespace Expense_Tracker.ViewModels
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly AppDbContext _context;
+        private readonly Settings _settings;
         private ObservableCollection<Expense> _expenses;
         private ObservableCollection<string> _categories;
+        private ObservableCollection<Expense> _filteredExpenses;
         private string _selectedCategory;
         private DateTime? _startDate;
         private DateTime? _endDate;
         private decimal _totalAmount;
         private bool _isDarkTheme;
 
-        public MainViewModel(AppDbContext context)
+        public MainViewModel()
         {
-            _context = context;
-            LoadExpensesCommand = new RelayCommand(LoadExpenses);
-            AddExpenseCommand = new RelayCommand(AddExpense);
-            EditExpenseCommand = new RelayCommand<Expense>(EditExpense);
-            DeleteExpenseCommand = new RelayCommand<Expense>(DeleteExpense);
-            ResetFiltersCommand = new RelayCommand(ResetFilters);
-            ToggleThemeCommand = new RelayCommand(ToggleTheme);
+            _context = new AppDbContext();
+            _settings = Services.SettingsService.LoadSettings();
+            
+            // Инициализация коллекций
+            _expenses = new ObservableCollection<Expense>();
+            _categories = new ObservableCollection<string>();
+            _filteredExpenses = new ObservableCollection<Expense>();
+            
+            // Команды
+            AddNewExpenseCommand = new RelayCommand(AddExpense);
+            EditExistingExpenseCommand = new RelayCommand<Expense>(EditExpense);
+            RemoveExpenseCommand = new RelayCommand<Expense>(DeleteExpense);
+            ClearFiltersCommand = new RelayCommand(ResetFilters);
+            OpenSettingsCommand = new RelayCommand(OpenSettings);
 
+            // Загрузка данных
             LoadExpenses();
             LoadCategories();
+
+            // Применяем сохраненную тему
+            ApplyTheme();
         }
 
-        public bool IsDarkTheme
-        {
-            get => _isDarkTheme;
-            set
-            {
-                if (_isDarkTheme != value)
-                {
-                    _isDarkTheme = value;
-                    OnPropertyChanged();
-                    ApplyTheme();
-                }
-            }
-        }
-
-        public ICommand LoadExpensesCommand { get; }
-        public ICommand AddExpenseCommand { get; }
-        public ICommand EditExpenseCommand { get; }
-        public ICommand DeleteExpenseCommand { get; }
-        public ICommand ResetFiltersCommand { get; }
-        public ICommand ToggleThemeCommand { get; }
+        public ICommand AddNewExpenseCommand { get; }
+        public ICommand EditExistingExpenseCommand { get; }
+        public ICommand RemoveExpenseCommand { get; }
+        public ICommand ClearFiltersCommand { get; }
+        public ICommand OpenSettingsCommand { get; }
 
         public ObservableCollection<Expense> Expenses
         {
@@ -78,6 +76,17 @@ namespace Expense_Tracker.ViewModels
             {
                 _categories = value;
                 OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<Expense> FilteredExpenses
+        {
+            get => _filteredExpenses;
+            set
+            {
+                _filteredExpenses = value;
+                OnPropertyChanged();
+                UpdateTotalAmount();
             }
         }
 
@@ -124,21 +133,25 @@ namespace Expense_Tracker.ViewModels
             }
         }
 
-        private ObservableCollection<Expense> _filteredExpenses;
-        public ObservableCollection<Expense> FilteredExpenses
+        public string CurrentCurrency => _settings.Currency;
+
+        public bool IsDarkTheme
         {
-            get => _filteredExpenses;
+            get => _settings.IsDarkTheme;
             set
             {
-                _filteredExpenses = value;
-                OnPropertyChanged();
-                UpdateTotalAmount();
+                if (_settings.IsDarkTheme != value)
+                {
+                    _settings.IsDarkTheme = value;
+                    OnPropertyChanged();
+                    ApplyTheme();
+                }
             }
         }
 
         private void LoadExpenses()
         {
-            var expenses = _context.Expenses.ToList();
+            var expenses = _context.Expenses.OrderByDescending(e => e.Date).ToList();
             Expenses = new ObservableCollection<Expense>(expenses);
             FilteredExpenses = new ObservableCollection<Expense>(expenses);
         }
@@ -187,28 +200,57 @@ namespace Expense_Tracker.ViewModels
 
         private void AddExpense()
         {
-            var expense = new Expense { Date = DateTime.Now };
-            var dialog = new Views.EditExpenseWindow(expense);
-            
-            if (dialog.ShowDialog() == true)
+            try
             {
-                _context.Expenses.Add(expense);
-                _context.SaveChanges();
+                var expense = new Expense 
+                { 
+                    Date = DateTime.Now,
+                    Title = "Новый расход",
+                    Category = "Прочее",
+                    Amount = 0
+                };
                 
-                // Обновляем списки
-                if (!Categories.Contains(expense.Category))
+                var viewModel = new EditExpenseViewModel(expense);
+                var dialog = new Views.EditExpenseWindow { DataContext = viewModel };
+                dialog.Owner = Application.Current.MainWindow;
+                
+                if (dialog.ShowDialog() == true)
                 {
-                    Categories.Add(expense.Category);
+                    try
+                    {
+                        _context.Expenses.Add(expense);
+                        _context.SaveChanges();
+                        
+                        // Обновляем списки
+                        if (!string.IsNullOrEmpty(expense.Category) && !Categories.Contains(expense.Category))
+                        {
+                            Categories.Add(expense.Category);
+                        }
+                        
+                        Expenses.Insert(0, expense);
+                        UpdateFilteredExpenses();
+                        UpdateTotalAmount();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при сохранении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
-                
-                Expenses.Insert(0, expense);
-                UpdateFilteredExpenses();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при создании окна: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void EditExpense(Expense expense)
         {
-            var dialog = new Views.EditExpenseWindow(expense);
+            if (expense == null) return;
+            
+            var viewModel = new EditExpenseViewModel(expense);
+            var dialog = new Views.EditExpenseWindow { DataContext = viewModel };
+            dialog.Owner = Application.Current.MainWindow;
+            
             if (dialog.ShowDialog() == true)
             {
                 _context.SaveChanges();
@@ -219,18 +261,20 @@ namespace Expense_Tracker.ViewModels
                 }
                 
                 UpdateFilteredExpenses();
+                UpdateTotalAmount();
             }
         }
 
         private void DeleteExpense(Expense expense)
         {
-            if (expense != null)
-            {
-                _context.Expenses.Remove(expense);
-                _context.SaveChanges();
-                Expenses.Remove(expense);
-                UpdateFilteredExpenses();
-            }
+            if (expense == null) return;
+
+            _context.Expenses.Remove(expense);
+            _context.SaveChanges();
+            
+            Expenses.Remove(expense);
+            UpdateFilteredExpenses();
+            UpdateTotalAmount();
         }
 
         private void ResetFilters()
@@ -240,21 +284,43 @@ namespace Expense_Tracker.ViewModels
             EndDate = null;
         }
 
-        private void ToggleTheme()
-        {
-            IsDarkTheme = !IsDarkTheme;
-        }
-
         private void ApplyTheme()
         {
-            var paletteHelper = new PaletteHelper();
-            var theme = paletteHelper.GetTheme();
+            try
+            {
+                var paletteHelper = new PaletteHelper();
+                var theme = paletteHelper.GetTheme();
+                theme.SetBaseTheme(_settings.IsDarkTheme ? Theme.Dark : Theme.Light);
+                paletteHelper.SetTheme(theme);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при применении темы: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
-            theme.SetBaseTheme(IsDarkTheme ? 
-                Theme.Dark : 
-                Theme.Light);
-        
-            paletteHelper.SetTheme(theme);
+        private void OpenSettings()
+        {
+            try
+            {
+                var viewModel = new SettingsViewModel(_settings);
+                var dialog = new Views.SettingsWindow { DataContext = viewModel };
+                dialog.Owner = Application.Current.MainWindow;
+
+                if (dialog.ShowDialog() == true)
+                {
+                    ApplyTheme();
+                    Services.LocalizationService.SetLanguage(_settings.Language);
+                    Services.SettingsService.SaveSettings(_settings);
+                    OnPropertyChanged(nameof(CurrentCurrency));
+                    OnPropertyChanged(nameof(FilteredExpenses));
+                    OnPropertyChanged(nameof(TotalAmount));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при открытии настроек: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void UpdateTotalAmount()
@@ -262,9 +328,9 @@ namespace Expense_Tracker.ViewModels
             TotalAmount = FilteredExpenses.Sum(e => e.Amount);
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

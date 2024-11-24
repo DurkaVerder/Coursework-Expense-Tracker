@@ -1,0 +1,32 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <!-- Главное окно -->
+    <system:String x:Key="MainWindow_Title">Учет расходов</system:String>
+    <system:String x:Key="MainWindow_Add">Добавить</system:String>
+    <system:String x:Key="MainWindow_Category">Категория</system:String>
+    <system:String x:Key="MainWindow_AllCategories">Все категории</system:String>
+    <system:String x:Key="MainWindow_StartDate">Начальная дата</system:String>
+    <system:String x:Key="MainWindow_EndDate">Конечная дата</system:String>
+    <system:String x:Key="MainWindow_ClearFilters">Сбросить фильтры</system:String>
+    <system:String x:Key="MainWindow_Total">Итого:</system:String>
+    <system:String x:Key="MainWindow_Edit">Изменить</system:String>
+    <system:String x:Key="MainWindow_Delete">Удалить</system:String>
+
+    <!-- Окно редактирования -->
+    <system:String x:Key="EditWindow_Title">Редактирование расхода</system:String>
+    <system:String x:Key="EditWindow_Amount">Сумма</system:String>
+    <system:String x:Key="EditWindow_Category">Категория</system:String>
+    <system:String x:Key="EditWindow_Description">Описание</system:String>
+    <system:String x:Key="EditWindow_Date">Дата</system:String>
+    <system:String x:Key="EditWindow_Save">Сохранить</system:String>
+    <system:String x:Key="EditWindow_Cancel">Отмена</system:String>
+
+    <!-- Окно настроек -->
+    <system:String x:Key="Settings_Title">Настройки</system:String>
+    <system:String x:Key="Settings_Currency">Валюта</system:String>
+    <system:String x:Key="Settings_Language">Язык</system:String>
+    <system:String x:Key="Settings_Theme">Темная тема</system:String>
+    <system:String x:Key="Settings_Save">Сохранить</system:String>
+    <system:String x:Key="Settings_Cancel">Отмена</system:String>
+</ResourceDictionary>

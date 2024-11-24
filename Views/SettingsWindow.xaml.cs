@@ -1,19 +1,18 @@
 using System.Windows;
-using Expense_Tracker.Models;
 using Expense_Tracker.ViewModels;
 
 namespace Expense_Tracker.Views
 {
-    public partial class EditExpenseWindow : Window
+    public partial class SettingsWindow : Window
     {
-        public EditExpenseWindow()
+        public SettingsWindow()
         {
             InitializeComponent();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (DataContext is EditExpenseViewModel viewModel)
+            if (DataContext is SettingsViewModel viewModel)
             {
                 viewModel.CloseRequested += (s, result) =>
                 {
