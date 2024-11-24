@@ -1,18 +1,15 @@
 using System;
 using System.Globalization;
 using System.Windows.Data;
+using MaterialDesignThemes.Wpf;
 
-namespace Expense_Tracker.Converters
+namespace Expense_Tracker
 {
-    public class ThemeButtonTextConverter : IValueConverter
+    public class BooleanToThemeIconConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool isDarkTheme)
-            {
-                return isDarkTheme ? "Светлая тема" : "Темная тема";
-            }
-            return "Темная тема";
+            return (bool)value ? PackIconKind.WeatherNight : PackIconKind.WeatherSunny;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

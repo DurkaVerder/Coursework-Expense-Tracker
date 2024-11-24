@@ -6,17 +6,25 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:Expense_Tracker.Views"
         mc:Ignorable="d"
-        Title="{DynamicResource EditWindow_Title}" 
-        Height="400" 
-        Width="400"
+        Title="Редактирование расхода" 
+        Width="400" 
+        SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
-        Loaded="Window_Loaded"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="{DynamicResource MaterialDesignPaper}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
-        FontFamily="{materialDesign:MaterialDesignFont}">
-    
+        FontFamily="{materialDesign:MaterialDesignFont}"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -24,61 +32,55 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- Название -->
         <TextBox Grid.Row="0"
-                 Margin="0,8"
                  Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
-                 materialDesign:HintAssist.Hint="{DynamicResource EditWindow_Amount}"
-                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                 materialDesign:HintAssist.Hint="Название"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                 Margin="0,0,0,16"/>
 
+        <!-- Описание -->
         <TextBox Grid.Row="1"
-                 Margin="0,8"
-                 Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                 materialDesign:HintAssist.Hint="{DynamicResource EditWindow_Description}"
-                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                 Text="{Binding Description}"
+                 materialDesign:HintAssist.Hint="Описание"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                 Margin="0,0,0,16"/>
 
-        <ComboBox Grid.Row="2"
-                  Margin="0,8"
+        <!-- Сумма -->
+        <TextBox Grid.Row="2"
+                 Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
+                 materialDesign:HintAssist.Hint="Сумма"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                 Margin="0,0,0,16"/>
+
+        <!-- Категория -->
+        <ComboBox Grid.Row="3"
                   ItemsSource="{Binding Categories}"
-                  SelectedItem="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
-                  IsEditable="False"
-                  materialDesign:HintAssist.Hint="{DynamicResource EditWindow_Category}"
-                  Style="{StaticResource MaterialDesignComboBox}"/>
+                  SelectedItem="{Binding Category}"
+                  materialDesign:HintAssist.Hint="Категория"
+                  Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                  IsEditable="True"
+                  Margin="0,0,0,16"/>
 
-        <Grid Grid.Row="3" Margin="0,8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <!-- Дата -->
+        <DatePicker Grid.Row="4"
+                   SelectedDate="{Binding Date}"
+                   materialDesign:HintAssist.Hint="Дата"
+                   Style="{StaticResource MaterialDesignOutlinedDatePicker}"
+                   Margin="0,0,0,16"/>
 
-            <StackPanel>
-                <TextBox 
-                         Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
-                         materialDesign:HintAssist.Hint="{DynamicResource EditWindow_Amount}"
-                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                         Margin="0,0,10,0"/>
-            </StackPanel>
-
-            <StackPanel Grid.Column="1">
-                <DatePicker 
-                           SelectedDate="{Binding Date, UpdateSourceTrigger=PropertyChanged}"
-                           materialDesign:HintAssist.Hint="{DynamicResource EditWindow_Date}"
-                           Style="{StaticResource MaterialDesignDatePicker}"/>
-            </StackPanel>
-        </Grid>
-
-        <StackPanel Grid.Row="6" 
+        <!-- Кнопки -->
+        <StackPanel Grid.Row="5" 
                     Orientation="Horizontal" 
-                    HorizontalAlignment="Right" 
-                    Margin="0,16,0,0">
-            <Button Content="{DynamicResource EditWindow_Cancel}"
+                    HorizontalAlignment="Right">
+            <Button Content="Отмена"
                     Command="{Binding CancelCommand}"
-                    Style="{StaticResource MaterialDesignFlatButton}"
-                    Margin="8,0"/>
-            <Button Content="{DynamicResource EditWindow_Save}"
+                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Margin="0,0,8,0"/>
+            <Button Content="Сохранить"
                     Command="{Binding SaveCommand}"
                     Style="{StaticResource MaterialDesignRaisedButton}"/>
         </StackPanel>

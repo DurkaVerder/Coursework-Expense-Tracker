@@ -28,10 +28,7 @@ namespace Expense_Tracker.ViewModels
 
         public EditExpenseViewModel(Expense expense)
         {
-            if (expense == null)
-                throw new ArgumentNullException(nameof(expense));
-
-            _expense = expense;
+            _expense = expense ?? throw new ArgumentNullException(nameof(expense));
             SaveCommand = new RelayCommand(Save, CanSave);
             CancelCommand = new RelayCommand(Cancel);
         }
@@ -41,7 +38,7 @@ namespace Expense_Tracker.ViewModels
             if (string.IsNullOrWhiteSpace(Title))
                 return false;
 
-            if (Amount < 0)
+            if (Amount <= 0)
                 return false;
 
             return true;
